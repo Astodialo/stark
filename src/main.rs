@@ -1,18 +1,18 @@
-use num_bigint::{BigInt, ToBigInt};
-use rand::prelude::*;
+use num_bigint::{BigInt, RandomBits, ToBigInt};
+use rand::Rng;
 
 mod fields;
 
 use crate::fields::*;
 
 fn main() {
-    let field = Field::new(1 + 407 * (2 ^ 119));
+    let field = Field::new(BigInt::from(1 + 407) * (BigInt::from(2).pow(119)));
     let mut element = FieldElement::new(
-        rand::thread_rng().gen_range(0..field.p),
+        rand::thread_rng().gen_range(BigInt::ZERO..field.p.clone()),
         Field { p: field.p.clone() },
     );
     let mut element2 = FieldElement::new(
-        rand::thread_rng().gen_range(0..field.p),
+        rand::thread_rng().gen_range(BigInt::ZERO..field.p.clone()),
         Field { p: field.p.clone() },
     );
 
@@ -46,10 +46,10 @@ fn main() {
         element
             .field
             .sample(&[
-                thread_rng().gen_range(0..field.p),
-                thread_rng().gen_range(0..field.p),
-                thread_rng().gen_range(0..field.p),
-                thread_rng().gen_range(0..field.p),
+                rand::thread_rng().gen_range(BigInt::ZERO..field.p.clone()),
+                rand::thread_rng().gen_range(BigInt::ZERO..field.p.clone()),
+                rand::thread_rng().gen_range(BigInt::ZERO..field.p.clone()),
+                rand::thread_rng().gen_range(BigInt::ZERO..field.p.clone()),
             ])
             .value
     );
