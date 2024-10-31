@@ -22,13 +22,13 @@ fn update_step(a: &mut BigInt, old_a: &mut BigInt, q: BigInt) {
     *old_a = temp;
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct FieldElement {
     pub value: BigInt,
     pub field: Field,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Field {
     pub p: BigInt,
 }
@@ -204,9 +204,9 @@ impl Field {
     }
 
     pub fn sample(&self, ba: &[BigInt]) -> FieldElement {
-        let mut acc = BigInt::ZERO;
+        let mut acc = BigInt::from(1);
         for b in ba {
-            acc = (BigInt::from(acc << 8) ^ (b)) % self.p.clone();
+            acc = BigInt::from(acc << 8).modpow(b, &self.p.clone());
         }
         FieldElement::new(acc, self.clone())
     }

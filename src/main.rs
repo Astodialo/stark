@@ -2,8 +2,10 @@ use num_bigint::{BigInt, RandomBits, ToBigInt};
 use rand::Rng;
 
 mod fields;
+mod polynomials;
 
 use crate::fields::*;
+use crate::polynomials::*;
 
 fn main() {
     let field = Field::new(BigInt::from(1 + 407) * (BigInt::from(2).pow(119)));
@@ -15,6 +17,9 @@ fn main() {
         rand::thread_rng().gen_range(BigInt::ZERO..field.p.clone()),
         Field { p: field.p.clone() },
     );
+    let poly = Polynomial::new([element.clone(), element.field.zero(), element2.clone()].to_vec());
+    let poly_zero = Polynomial::new([element.field.zero(), element.field.zero()].to_vec());
+    let poly_ = Polynomial::new([].to_vec());
 
     println!("Field: {}", element.field.p);
     println!("  Value1: {}", element.value);
@@ -53,4 +58,10 @@ fn main() {
             ])
             .value
     );
+    println!(
+        "    poly coefficients: {}, {}",
+        poly.coefficients[0].value, poly.coefficients[1].value
+    );
+    println!("    poly degree: {}", poly_zero.degree());
+    println!("    poly degree: {}", poly_.degree());
 }
