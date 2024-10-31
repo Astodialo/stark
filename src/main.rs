@@ -17,9 +17,10 @@ fn main() {
         rand::thread_rng().gen_range(BigInt::ZERO..field.p.clone()),
         Field { p: field.p.clone() },
     );
-    let poly = Polynomial::new([element.clone(), element.field.zero(), element2.clone()].to_vec());
-    let poly_zero = Polynomial::new([element.field.zero(), element.field.zero()].to_vec());
-    let poly_ = Polynomial::new([].to_vec());
+    let mut poly = Polynomial::new([element.clone(), element2.clone(), element2.clone()].to_vec());
+    let mut poly_zero = Polynomial::new([element.field.zero(), element.field.zero()].to_vec());
+    let mut poly_2 =
+        Polynomial::new([element.field.zero(), element.clone(), element.field.zero()].to_vec());
 
     println!("Field: {}", element.field.p);
     println!("  Value1: {}", element.value);
@@ -62,6 +63,31 @@ fn main() {
         "    poly coefficients: {}, {}",
         poly.coefficients[0].value, poly.coefficients[1].value
     );
-    println!("    poly degree: {}", poly_zero.degree());
-    println!("    poly degree: {}", poly_.degree());
+    println!("    zero poly degree: {}", poly_zero.degree());
+    println!("    poly degree: {}", poly_2.degree());
+    println!("    poly neg: {}", poly.neg().coefficients[0].value);
+    println!(
+        "    poly add: {}",
+        poly.add(&mut poly_2).coefficients[1].value
+    );
+    println!(
+        "    poly sub: {}",
+        poly.sub(&mut poly_2).coefficients[1].value
+    );
+    println!(
+        "    poly mul: {}",
+        poly.mul(&mut poly_2).coefficients[1].value
+    );
+    println!("    poly neq: {}", poly.neq(&mut poly_2));
+    println!("    poly eq: {}", poly.eq(&mut poly.clone()));
+    println!("    poly is_zero: {}", poly_zero.is_zero());
+    println!(
+        "    poly leading coefficient: {}",
+        poly.leading_coefficient().value
+    );
+    println!(
+        "    poly division: {},{}",
+        poly.divide(&mut poly_2.clone()).unwrap().1.coefficients[0].value,
+        poly.divide(&mut poly_2.clone()).unwrap().1.is_zero(),
+    );
 }
