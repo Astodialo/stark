@@ -158,13 +158,13 @@ impl Polynomial {
         let (quo, rem) = self.divide(other).unwrap();
         rem
     }
-    pub fn xor(&mut self, exponent: &mut Polynomial) -> Polynomial {
+    pub fn xor(&mut self, exponent: BigInt) -> Polynomial {
         if self.is_zero() {
             return Polynomial {
                 coefficients: Vec::new(),
             };
         }
-        if exponent.is_zero() {
+        if exponent == BigInt::ZERO {
             return Polynomial {
                 coefficients: [self.coefficients[0].field.one()].to_vec(),
             };
@@ -172,6 +172,17 @@ impl Polynomial {
         let mut acc = Polynomial {
             coefficients: [self.coefficients[0].field.one()].to_vec(),
         };
+
+        let bytes = exponent.to_signed_bytes_be();
+
+        for byte in bytes {
+            for i in (0..8).rev() {
+                acc = acc.mul(&mut acc.clone());
+                if (byte >> i) & 1 == 1 {
+                    acc = acc.mul(self);
+                }
+            }
+        }
         acc
     }
 }

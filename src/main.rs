@@ -90,4 +90,8 @@ fn main() {
         poly.divide(&mut poly_2.clone()).unwrap().1.coefficients[0].value,
         poly.divide(&mut poly_2.clone()).unwrap().1.is_zero(),
     );
+    println!(
+        "    poly xor: {}",
+        poly.xor(549.to_bigint().unwrap()).coefficients.len(),
+    );
 }
