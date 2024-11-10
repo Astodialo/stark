@@ -92,6 +92,25 @@ fn main() {
     );
     println!(
         "    poly xor: {}",
-        poly.xor(549.to_bigint().unwrap()).coefficients.len(),
+        poly.xor(FieldElement {
+            value: 333.to_bigint().unwrap(),
+            field: field.clone()
+        })
+        .coefficients
+        .len(),
     );
+    println!("    poly eval: {:?}", poly.evaluate(&mut element));
+    println!(
+        "    poly domain_eval: {:?}",
+        poly.evaluate_domain(&mut [element, element2].to_vec())
+    );
+    println!(
+        "    poly interpolation: {:?}",
+        Polynomial::interpolate_domain(
+            &mut poly.coefficients.clone(),
+            &mut poly.evaluate_domain(&mut poly.coefficients.clone())
+        )
+        .coefficients
+        .len()
+    )
 }

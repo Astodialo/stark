@@ -22,13 +22,13 @@ fn update_step(a: &mut BigInt, old_a: &mut BigInt, q: BigInt) {
     *old_a = temp;
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct FieldElement {
     pub value: BigInt,
     pub field: Field,
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Field {
     pub p: BigInt,
 }

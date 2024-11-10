@@ -1,7 +1,7 @@
 use crate::fields::*;
 use num_bigint::BigInt;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Polynomial {
     pub coefficients: Vec<FieldElement>,
 }
@@ -158,13 +158,13 @@ impl Polynomial {
         let (quo, rem) = self.divide(other).unwrap();
         rem
     }
-    pub fn xor(&mut self, exponent: BigInt) -> Polynomial {
+    pub fn xor(&mut self, exponent: FieldElement) -> Polynomial {
         if self.is_zero() {
             return Polynomial {
                 coefficients: Vec::new(),
             };
         }
-        if exponent == BigInt::ZERO {
+        if exponent.value == BigInt::ZERO {
             return Polynomial {
                 coefficients: [self.coefficients[0].field.one()].to_vec(),
             };
@@ -173,7 +173,7 @@ impl Polynomial {
             coefficients: [self.coefficients[0].field.one()].to_vec(),
         };
 
-        let bytes = exponent.to_signed_bytes_be();
+        let bytes = exponent.value.to_signed_bytes_be();
 
         for byte in bytes {
             for i in (0..8).rev() {
@@ -182,6 +182,60 @@ impl Polynomial {
                     acc = acc.mul(self);
                 }
             }
+        }
+        acc
+    }
+
+    pub fn evaluate(&mut self, point: &mut FieldElement) -> FieldElement {
+        let mut xi = point.field.one();
+        let mut value = point.field.zero();
+
+        for mut c in self.coefficients.clone() {
+            value = value.clone().add(&mut c.mul(&mut xi));
+            xi = xi.clone().mul(point);
+        }
+        value
+    }
+
+    pub fn evaluate_domain(&mut self, domain: &mut Vec<FieldElement>) -> Vec<FieldElement> {
+        domain
+            .iter_mut()
+            .map(|mut p| self.evaluate(&mut p))
+            .collect()
+    }
+
+    pub fn interpolate_domain(
+        domain: &mut Vec<FieldElement>,
+        values: &mut Vec<FieldElement>,
+    ) -> Polynomial {
+        assert!(domain.len() == values.len());
+        assert!(domain.len() > 0);
+
+        let field = domain[0].field.clone();
+        let mut x = Polynomial {
+            coefficients: [field.zero(), field.one()].to_vec(),
+        };
+        let mut acc = Polynomial {
+            coefficients: Vec::new(),
+        };
+        for i in 0..domain.len() {
+            let mut prod = Polynomial {
+                coefficients: [values[i].clone()].to_vec(),
+            };
+            for j in 0..domain.len() {
+                if j == i {
+                    continue;
+                }
+                prod = prod
+                    .mul(&mut x.sub(&mut Polynomial {
+                        coefficients: [domain[j].clone()].to_vec(),
+                    }))
+                    .mul(&mut Polynomial {
+                        coefficients: [domain[i].clone().sub(&mut domain[j].clone()).inverse()]
+                            .to_vec(),
+                    })
+            }
+            acc = acc.add(&mut prod);
         }
         acc
     }
