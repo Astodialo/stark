@@ -218,11 +218,14 @@ impl Polynomial {
         let mut acc = Polynomial {
             coefficients: Vec::new(),
         };
+        println!("{}", domain.len());
         for i in 0..domain.len() {
+            println!("i{}", i);
             let mut prod = Polynomial {
                 coefficients: [values[i].clone()].to_vec(),
             };
             for j in 0..domain.len() {
+                println!("j{}", j);
                 if j == i {
                     continue;
                 }
@@ -238,5 +241,49 @@ impl Polynomial {
             acc = acc.add(&mut prod);
         }
         acc
+    }
+
+    pub fn zerofier_domain(domain: &mut Vec<FieldElement>) -> Polynomial {
+        let field = domain[0].field.clone();
+        let mut x = Polynomial {
+            coefficients: [field.zero(), field.one()].to_vec(),
+        };
+        let mut acc = Polynomial {
+            coefficients: [field.one()].to_vec(),
+        };
+        for d in domain {
+            acc = acc.mul(&mut x.sub(&mut Polynomial {
+                coefficients: [d.clone()].to_vec(),
+            }));
+        }
+        acc
+    }
+
+    pub fn scale(&mut self, factor: &mut FieldElement) -> Polynomial {
+        let field = self.coefficients[0].field.clone();
+        let mut scaled: Vec<FieldElement> = Vec::new();
+        for i in 0..self.coefficients.len() {
+            let value = factor
+                .xor(&mut FieldElement::new(i.into(), field.clone()))
+                .mul(&mut self.coefficients[i]);
+
+            scaled.push(value);
+        }
+        Polynomial {
+            coefficients: scaled,
+        }
+    }
+
+    pub fn test_colinearity(points: &mut Vec<(FieldElement, FieldElement)>) -> bool {
+        let mut domain: Vec<FieldElement> = points.iter().map(|point| point.0.clone()).collect();
+        let mut values: Vec<FieldElement> = points.iter().map(|point| point.1.clone()).collect();
+        println!("{:?}", domain);
+        println!("{:?}", domain.len());
+        println!("{:?}", values);
+        println!("{:?}", values.len());
+
+        let poly = Polynomial::interpolate_domain(&mut domain, &mut values);
+        println!("{:?}", poly);
+        poly.degree() <= 1
     }
 }

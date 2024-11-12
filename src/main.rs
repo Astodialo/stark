@@ -102,7 +102,7 @@ fn main() {
     println!("    poly eval: {:?}", poly.evaluate(&mut element));
     println!(
         "    poly domain_eval: {:?}",
-        poly.evaluate_domain(&mut [element, element2].to_vec())
+        poly.evaluate_domain(&mut [element.clone(), element2.clone()].to_vec())
     );
     println!(
         "    poly interpolation: {:?}",
@@ -112,5 +112,30 @@ fn main() {
         )
         .coefficients
         .len()
+    );
+    println!(
+        "    poly zerofier: {:?}",
+        Polynomial::zerofier_domain(&mut poly.coefficients.clone())
+            .coefficients
+            .len()
+    );
+    println!(
+        "    poly scale: {:?}",
+        poly.scale(&mut FieldElement::new(
+            333.to_bigint().unwrap(),
+            field.clone()
+        ))
+        .leading_coefficient()
+        .value
+    );
+    println!(
+        "    poly colinearity: {}",
+        Polynomial::test_colinearity(
+            &mut [
+                (element.clone(), element2.clone()),
+                (element2.clone(), element.clone())
+            ]
+            .to_vec()
+        )
     )
 }
